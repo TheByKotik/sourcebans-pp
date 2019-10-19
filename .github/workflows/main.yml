@@ -1,0 +1,28 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    name: Build plugins on ${{ matrix.sourcemod }}
+    runs-on: ubuntu-latest
+    strategy:
+        matrix:
+          sourcemod: ['9', '10', '11']
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build
+      run: |
+        wget "http://www.sourcemod.net/latest.php?version=$SOURCEMOD&os=linux" -O game/sourcemod-$SOURCEMOD-linux.tar.gz
+        cd game
+        tar -xzf sourcemod-$SOURCEMOD-linux.tar.gz
+        cd addons/sourcemod/scripting/
+        wget https://bitbucket.org/GoD_Tony/updater/raw/53ebb3e27e5a43bc46dc52dc0de76ac2fb48cd9e/include/updater.inc -O include/updater.inc
+        chmod +x spcomp
+
+        ./spcomp sbpp_main.sp -E -i$PWD -v0
+        ./spcomp sbpp_admcfg.sp -E -i$PWD -v0
+        ./spcomp sbpp_comms.sp -E -i$PWD -v0
+        ./spcomp sbpp_checker.sp -E -i$PWD -v0
+        ./spcomp sbpp_sleuth.sp -E -i$PWD -v0
+        ./spcomp sbpp_report.sp -E -i$PWD -v0
